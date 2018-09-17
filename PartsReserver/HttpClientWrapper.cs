@@ -4,6 +4,7 @@ using System.Net;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using PartsReserver.Models;
 
 namespace PartsReserver
 {
@@ -24,7 +25,7 @@ namespace PartsReserver
 				UseCookies = true,
 				UseDefaultCredentials = false
 			};
-			_client = new HttpClient(handler);
+			_client = new HttpClient(new LoggingHandler(handler));
 			_address = address;
 		}
 		
@@ -48,6 +49,7 @@ namespace PartsReserver
 				var url = _address + "/j_security_check";
 				var req = new HttpRequestMessage(HttpMethod.Post, url) { Content = new FormUrlEncodedContent(nvc) };
 				var response = await _client.SendAsync(req, token);
+				Logger.Debug(await response.Content.ReadAsStringAsync());
 				response.EnsureSuccessStatusCode();
 				return _cookies.Count > 0;
 			}
@@ -58,26 +60,29 @@ namespace PartsReserver
 			}
 		}
 
+		/// <summary>
+		/// Получить список автомобилей по фильтру.
+		/// </summary>
+		/// <param name="filter"> Фильтр.</param>
+		/// <param name="token"> Токен отмены.</param>
+		/// <returns> Ответ от сервера</returns>
+		public async Task<HttpResponseMessage> GetCarList(Reserver filter, CancellationToken token)
+		{
+			Logger.Debug("HttpClient. /a/auto/auto.json");
+			try
+			{
+				var url = _address + "/a/auto/auto.json";
+				var req = new HttpRequestMessage(HttpMethod.Post, url) { Content = new FormUrlEncodedContent(filter.AutoRequest()) };
+				var response = await _client.SendAsync(req, token);
+				return response;
+			}
+			catch (Exception e)
+			{
+				Logger.Write("HttpClient. GetCarList. ", e);
+			}
 
-		//public async Task<HttpResponseMessage> GetCarList(Reserver filter, CancellationToken token)
-		//{
-		//	Logger.Debug("HttpClient. GetCarList");
-		//	try
-		//	{
-		//		var url = _address + "/a/auto/auto.json";
-		//		var req = new HttpRequestMessage(HttpMethod.Post, url) { Content = new StringContent(filter.ToString()) };
-		//		var response = await _client.SendAsync(req, token);
-
-		//		return response;
-		//	}
-		//	catch (Exception e)
-		//	{
-		//		Logger.Write("HttpClient. GetCarList. ", e);
-
-		//	}
-
-		//	return null;
-		//}
+			return null;
+		}
 
 		public void Dispose()
 		{

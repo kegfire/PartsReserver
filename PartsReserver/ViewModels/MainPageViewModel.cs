@@ -16,14 +16,17 @@ namespace PartsReserver.ViewModels
 {
 	public class MainPageViewModel : BaseViewModel
 	{
+		private CancellationTokenSource _cancellationTokenSource;
+
 		private ObservableCollection<Reserver> _reserverList;
 
-		private readonly CancellationTokenSource _cancellationTokenSource;
-
 		private bool _serviceIsRunning;
+
+		private Scheduler _scheduler;
 		public MainPageViewModel()
 		{
 			_cancellationTokenSource = new CancellationTokenSource();
+			
 			Reservers = new ObservableCollection<Reserver>(new[] { new Reserver() {  Name = "first" }, new Reserver() {  Name = "second" } });
 			StartCommand = new RelayCommand(StartCommandExecute, CanStartCommandExecute);
 			StopCommand = new RelayCommand(StopCommandExecute, CanStopCommandExecute);
@@ -161,8 +164,8 @@ namespace PartsReserver.ViewModels
 		}
 		private void StartCommandExecute()
 		{
-			var service = new Scheduler(_cancellationTokenSource.Token);
-			Task.Run(() => service.Start());
+			_scheduler = new Scheduler(_cancellationTokenSource.Token);
+			Task.Run(() => _scheduler.Start());
 			ServiceIsRunning = true;
 		}
 
@@ -171,6 +174,8 @@ namespace PartsReserver.ViewModels
 		private void StopCommandExecute()
 		{
 			_cancellationTokenSource.Cancel();
+			_scheduler.Stop();
+			_cancellationTokenSource = new CancellationTokenSource();
 			ServiceIsRunning = false;
 		}
 

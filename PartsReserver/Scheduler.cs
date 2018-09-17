@@ -8,6 +8,8 @@ namespace PartsReserver
 	public class Scheduler
 	{
 		private readonly CancellationToken _cancellationToken;
+
+		private IScheduler _scheduler;
 		public Scheduler(CancellationToken cancellationToken)
 		{
 			_cancellationToken = cancellationToken;
@@ -17,25 +19,30 @@ namespace PartsReserver
 		{
 			try
 			{
-				Logger.Debug($"Запуск планировщика");
+				_cancellationToken.ThrowIfCancellationRequested();
+				Logger.Debug("Запуск планировщика");
 				var settings = new Settings();
 				settings.Load();
 				var jobGroupTitle = "Reserve";
-				var scheduler = await StdSchedulerFactory.GetDefaultScheduler(_cancellationToken);
+				_scheduler = await StdSchedulerFactory.GetDefaultScheduler(_cancellationToken);
 				var job = JobBuilder.Create<ReserveJob>().WithIdentity("Reserve", jobGroupTitle).Build();
 				job.JobDataMap.Put("CancellationToken", _cancellationToken);
 				var trigger =
 					TriggerBuilder.Create()
 						.WithIdentity("Reserve", jobGroupTitle)
 						.WithSimpleSchedule(s => s.WithIntervalInSeconds(settings.Period).RepeatForever().WithMisfireHandlingInstructionIgnoreMisfires()).Build();
-				await scheduler.ScheduleJob(job, trigger, _cancellationToken);
-				await scheduler.Start(_cancellationToken);
-				// Logger.Write($"Инициализация расписания задачи обработки документов СФЕРА Курьер будет выполняться раз в {сourierSettings.ExchangePeriod + 2} минут");
+				await _scheduler.ScheduleJob(job, trigger, _cancellationToken);
+				await _scheduler.Start(_cancellationToken);
 			}
 			catch (SchedulerException ex)
 			{
 				Logger.Write($"Ошибка создания расписания для задачи бронирования  {ex.Message}");
 			}
+		}
+
+		public void Stop()
+		{
+			_scheduler?.Shutdown(_cancellationToken);
 		}
 	}
 }

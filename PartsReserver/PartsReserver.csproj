@@ -96,7 +96,9 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Helper.cs" />
     <Compile Include="Logger.cs" />
+    <Compile Include="LoggingHandler.cs" />
     <Compile Include="Models\Reserver.cs" />
     <Compile Include="Models\Settings.cs" />
     <Compile Include="Pages\SettingsPage.xaml.cs">
