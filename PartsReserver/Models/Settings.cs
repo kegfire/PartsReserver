@@ -47,7 +47,7 @@ namespace PartsReserver.Models
 
 			lock (o)
 			{
-				var path = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "Settings.xml");
+				var path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Settings.xml");
 				if (File.Exists(path))
 				{
 					using (var stream = new FileStream(path, FileMode.Open))
@@ -83,7 +83,7 @@ namespace PartsReserver.Models
 		/// </summary>
 		public void UpdateSettings()
 		{
-			var path = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "Settings.xml");
+			var path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Settings.xml");
 			try
 			{
 				var serializer = new XmlSerializer(typeof(Settings));

@@ -12,7 +12,7 @@ namespace PartsReserver
 {
 	internal class ReserveJob : IJob
 	{
-		public Task Execute(IJobExecutionContext context)
+		public async Task Execute(IJobExecutionContext context)
 		{
 			try
 			{
@@ -24,20 +24,21 @@ namespace PartsReserver
 					var dataStore = context.MergedJobDataMap;
 					var cancellationToken = dataStore.Get("CancellationToken") is CancellationToken ? (CancellationToken)dataStore.Get("CancellationToken") : new CancellationToken();
 					cancellationToken.ThrowIfCancellationRequested();
-					var path = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "Reservers.xml");
+					var path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Reservers.xml");
 					var reservers = Helper.Deserialize<List<Reserver>>(path);
 					using (var client = new HttpClientWrapper(settings.ServerAddress))
 					{
-						var successLogon = client.Logon(settings.Login, settings.Password, cancellationToken).Result;
-						Logger.Debug($"Login = {successLogon}");
-						if (successLogon)
-						{
+						//var successLogon = client.Logon(settings.Login, settings.Password, cancellationToken).Result;
+						//Logger.Debug($"Login = {successLogon}");
+						//if (successLogon)
+						//{
 							foreach (var reserver in reservers.Where(x => x.Activity))
 							{
 								Logger.Debug($"Reserver {reserver.Name}.");
-								var carList = client.GetCarList(reserver, cancellationToken).Result;
+								var carList = client.GetCarListAsync(reserver, cancellationToken).Result;
+								await client.ReserveCarAsync(carList, cancellationToken);
 							}
-						}
+						//}
 					}
 				}
 			
@@ -46,7 +47,6 @@ namespace PartsReserver
 			{
 				Logger.Write("Ошибка при запросе", ex);
 			}
-			return null;
 		}
 	}
 }

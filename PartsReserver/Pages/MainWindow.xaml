@@ -6,31 +6,125 @@
                 Title="PartsReserver" Height="800" Width="900" WindowStartupLocation="CenterScreen" ResizeMode="CanMinimize">
     <Window.Resources>
         <viewModels:MainPageViewModel x:Key="MainPageViewModel"/>
-        <Style TargetType="telerik:CollectionEditor" BasedOn="{StaticResource CollectionEditorStyle}">
-            <Setter Property="ItemTemplate">
-                <Setter.Value>
-                    <DataTemplate>
-                        <TextBlock Text="{Binding Name}" />
-                    </DataTemplate>
-                </Setter.Value>
+        <Style TargetType="CheckBox">
+            <Setter Property="Margin">
+                <Setter.Value>5</Setter.Value>
             </Setter>
-
+            <Setter Property="FontSize">
+                <Setter.Value>15</Setter.Value>
+            </Setter>
+        </Style>
+        <Style TargetType="TextBlock">
+            <Setter Property="Margin">
+                <Setter.Value>5</Setter.Value>
+            </Setter>
+            <Setter Property="FontSize">
+                <Setter.Value>15</Setter.Value>
+            </Setter>
+        </Style>
+        <Style TargetType="ComboBox">
+            <Setter Property="Margin">
+                <Setter.Value>5</Setter.Value>
+            </Setter>
+        </Style>
+        <Style TargetType="TextBox">
+            <Setter Property="Margin">
+                <Setter.Value>5</Setter.Value>
+            </Setter>
         </Style>
     </Window.Resources>
     <Grid DataContext="{Binding MainPage, Source={StaticResource ViewModelLocator}}">
-        <StackPanel>
-            <telerik:RadMenu HorizontalContentAlignment="Center" Background="White">
-                <telerik:RadMenuItem Header="Файл">
-                    <telerik:RadMenuItem Header="Загрузить" Command="{Binding LoadReserversCommand}"/>
-                    <telerik:RadMenuItem Header="Сохранить" Command="{Binding SaveReserversCommand}"/>
-                </telerik:RadMenuItem>
-                <telerik:RadMenuItem Header="Настройки" Command="{Binding OpenSettingsCommand}">
-                </telerik:RadMenuItem>
-                <telerik:RadMenuItem Header="Запустить" Command="{Binding StartCommand}"></telerik:RadMenuItem>
-                <telerik:RadMenuItem Header="Остановить"  Command="{Binding StopCommand}"></telerik:RadMenuItem>
-            </telerik:RadMenu>
-            <telerik:CollectionEditor Source="{Binding Reservers}" Height="743" Width="Auto">
-            </telerik:CollectionEditor>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"></ColumnDefinition>
+            <ColumnDefinition Width="3*"></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"></RowDefinition>
+            <RowDefinition></RowDefinition>
+            <RowDefinition Height="50"></RowDefinition>
+        </Grid.RowDefinitions>
+        <telerik:RadMenu HorizontalContentAlignment="Center" Grid.ColumnSpan="2" Background="White">
+            <telerik:RadMenuItem Header="Файл">
+                <telerik:RadMenuItem Header="Загрузить" Command="{Binding LoadReserversCommand}"/>
+                <telerik:RadMenuItem Header="Сохранить" Command="{Binding SaveReserversCommand}"/>
+            </telerik:RadMenuItem>
+            <telerik:RadMenuItem Header="Настройки" Command="{Binding OpenSettingsCommand}">
+            </telerik:RadMenuItem>
+            <telerik:RadMenuItem Header="Запустить" Command="{Binding StartCommand}"></telerik:RadMenuItem>
+            <telerik:RadMenuItem Header="Остановить"  Command="{Binding StopCommand}"></telerik:RadMenuItem>
+        </telerik:RadMenu>
+        <ListView  Grid.Column="0" Grid.Row="1" ItemsSource="{Binding Reservers}" SelectedItem="{Binding SelectedReserver}">
+            <ListView.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <StackPanel Orientation="Vertical"/>
+                </ItemsPanelTemplate>
+            </ListView.ItemsPanel>
+            <ListView.ItemTemplate>
+                <DataTemplate>
+                    <TextBlock Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}" TextAlignment="Center" Margin="5" />
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
+        <StackPanel Grid.Column="0" Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center">
+            <Button Margin="0,5,20,5" Background="#FFF2F0F0" Padding="0,0,0,5" FontSize="25" FontWeight="Bold" Foreground="#FF33E443" Width="65" ToolTip="Добавить задачу" Command="{Binding AddReserverCommand}">+</Button>
+            <Button Margin="20,5,0,5" Background="#FFF2F0F0" Padding="0,0,0,5" FontSize="25" FontWeight="Bold" Foreground="#FFCD2828" Width="65" ToolTip="Удалить задачу" IsEnabled="{Binding EnableFilter}" Command="{Binding RemoveReserverCommand}">-</Button>
         </StackPanel>
+
+        <Grid Grid.Column="1" Grid.Row="1" Margin="10" IsEnabled="{Binding EnableFilter}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"></ColumnDefinition>
+                <ColumnDefinition Width="1.5*"></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"></RowDefinition>
+                <RowDefinition Height="Auto"></RowDefinition>
+                <RowDefinition Height="Auto"></RowDefinition>
+                <RowDefinition Height="Auto"></RowDefinition>
+                <RowDefinition Height="Auto"></RowDefinition>
+                <RowDefinition Height="Auto"></RowDefinition>
+                <RowDefinition Height="Auto"></RowDefinition>
+                <RowDefinition Height="Auto"></RowDefinition>
+                <RowDefinition Height="Auto"></RowDefinition>
+                <RowDefinition Height="Auto"></RowDefinition>
+                <RowDefinition Height="Auto"></RowDefinition>
+                <RowDefinition Height="Auto"></RowDefinition>
+                <RowDefinition Height="Auto"></RowDefinition>
+                <RowDefinition Height="Auto"></RowDefinition>
+                <RowDefinition Height="Auto"></RowDefinition>
+                <RowDefinition Height="Auto"></RowDefinition>
+                <RowDefinition Height="Auto"></RowDefinition>
+            </Grid.RowDefinitions>
+            <CheckBox Grid.ColumnSpan="2" HorizontalAlignment="Center" IsChecked="{Binding Activity}">Активность задачи</CheckBox>
+            <TextBlock Grid.Column="0" Grid.Row="1">Название задачи</TextBlock>
+            <TextBox Grid.Column="1" Grid.Row="1" Text="{Binding Name}"></TextBox>
+            <TextBlock Grid.ColumnSpan="2" Grid.Column="0" Grid.Row="2" HorizontalAlignment="Center">Фильтр</TextBlock>
+            <TextBlock Grid.Column="0" Grid.Row="3">Наименование модели</TextBlock>
+            <TextBox Grid.Column="1" Grid.Row="3" Text="{Binding CarMark}"></TextBox>
+            <TextBlock Grid.Column="0" Grid.Row="4">VIN/VIN кузовопроизводителя</TextBlock>
+            <TextBox Grid.Column="1" Grid.Row="4" Text="{Binding VinNumberOfCarMaker}"></TextBox>
+            <TextBlock Grid.Column="0" Grid.Row="5">Модельный год</TextBlock>
+            <TextBox Grid.Column="1" Grid.Row="5" Text="{Binding ModelYear}"></TextBox>
+            <TextBlock Grid.Column="0" Grid.Row="6">Статус</TextBlock>
+            <ComboBox Grid.Column="1" Grid.Row="6" ItemsSource="{Binding Status}" SelectedValue="{Binding SelectedStatus}" DisplayMemberPath="Key"  SelectedValuePath="Value"></ComboBox>
+            <TextBlock Grid.Column="0" Grid.Row="7">Тип заказа</TextBlock>
+            <ComboBox Grid.Column="1" Grid.Row="7" ItemsSource="{Binding OrderType}" SelectedValue="{Binding SelectedOrderType}" DisplayMemberPath="Key"  SelectedValuePath="Value"></ComboBox>
+            <TextBlock Grid.Column="0" Grid.Row="8">Код модели</TextBlock>
+            <TextBox Grid.Column="1" Grid.Row="8" Text="{Binding ModelCode}"></TextBox>
+            <TextBlock Grid.Column="0" Grid.Row="9">Склад ТК</TextBlock>
+            <ComboBox Grid.Column="1" Grid.Row="9" ItemsSource="{Binding Stock}" SelectedValue="{Binding SelectedStock}" DisplayMemberPath="Key"  SelectedValuePath="Value"></ComboBox>
+            <TextBlock Grid.Column="0" Grid.Row="10">Тип сборки</TextBlock>
+            <ComboBox Grid.Column="1" Grid.Row="10" ItemsSource="{Binding AssemblyType}" SelectedValue="{Binding SelectedAssemblyType}" DisplayMemberPath="Key"  SelectedValuePath="Value"></ComboBox>
+            <TextBlock Grid.Column="0" Grid.Row="11">Статус финансирования</TextBlock>
+            <ComboBox Grid.Column="1" Grid.Row="11" ItemsSource="{Binding FundingStatus}" SelectedValue="{Binding SelectedFundingStatus}" DisplayMemberPath="Key"  SelectedValuePath="Value"></ComboBox>
+            <TextBlock Grid.Column="0" Grid.Row="12">Резерв дилера</TextBlock>
+            <ComboBox Grid.Column="1" Grid.Row="12" ItemsSource="{Binding DealerReserve}" SelectedValue="{Binding SelectedDealerReserve}" DisplayMemberPath="Key"  SelectedValuePath="Value"></ComboBox>
+            <TextBlock Grid.Column="0" Grid.Row="13">Финансируется</TextBlock>
+            <ComboBox Grid.Column="1" Grid.Row="13" ItemsSource="{Binding Funded}" SelectedValue="{Binding SelectedFunded}" DisplayMemberPath="Key"  SelectedValuePath="Value"></ComboBox>
+            <TextBlock Grid.Column="0" Grid.Row="14">Ошибки VBR</TextBlock>
+            <ComboBox Grid.Column="1" Grid.Row="14" ItemsSource="{Binding VbrError}" SelectedValue="{Binding SelectedVbrError}" DisplayMemberPath="Key"  SelectedValuePath="Value"></ComboBox>
+            <TextBlock Grid.Column="0" Grid.Row="15">Доп признак</TextBlock>
+            <ComboBox Grid.Column="1" Grid.Row="15" ItemsSource="{Binding AdditionalFeature}" SelectedValue="{Binding SelectedAdditionalFeature}" DisplayMemberPath="Key"  SelectedValuePath="Value"></ComboBox>
+        </Grid>
+        <Button Grid.Column="1" Grid.Row="2" IsEnabled="{Binding EnableFilter}" Command="{Binding TestFilterCommand}">Тест фильтра</Button>
     </Grid>
 </Window>

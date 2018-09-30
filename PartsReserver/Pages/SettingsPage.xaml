@@ -5,13 +5,9 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         x:Name="SettingsWindow"
         xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation"
-        xmlns:viewModels="clr-namespace:PartsReserver.ViewModels"
         mc:Ignorable="d"
         Title="Настройки" Height="300" Width="400" ResizeMode="NoResize" WindowStartupLocation="CenterScreen">
-    <Window.Resources>
-        <viewModels:SettingsViewModel x:Key="SettingsViewModel"/>
-        </Window.Resources>
-    <Grid Margin="10" DataContext="{StaticResource SettingsViewModel}">
+    <Grid Margin="10" DataContext="{Binding SettingsPage, Source={StaticResource ViewModelLocator}}">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto"></ColumnDefinition>
             <ColumnDefinition Width="Auto"></ColumnDefinition>

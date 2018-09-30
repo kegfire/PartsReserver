@@ -17,12 +17,12 @@ namespace PartsReserver.ViewModels
             ServiceLocator.SetLocatorProvider(() => SimpleIoc.Default);
 			SimpleIoc.Default.Register<MainPageViewModel>();
 	        SimpleIoc.Default.Register<SettingsViewModel>();
-
 		}
 
 		public MainPageViewModel MainPage => ServiceLocator.Current.GetInstance<MainPageViewModel>();
 
 	    public SettingsViewModel SettingsPage => ServiceLocator.Current.GetInstance<SettingsViewModel>();
+
 
 		public static void Cleanup()
         {

@@ -5,9 +5,6 @@
     StartupUri="Pages/MainWindow.xaml">
     <Application.Resources>
         <ResourceDictionary>
-            <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="Themes/Telerik.Windows.Controls.Data.xaml" />
-            </ResourceDictionary.MergedDictionaries>
             <viewModels:ViewModelLocator
                 x:Key="ViewModelLocator" />
         </ResourceDictionary>

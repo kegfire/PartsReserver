@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -18,7 +18,7 @@ namespace PartsReserver.ViewModels
 	{
 		private CancellationTokenSource _cancellationTokenSource;
 
-		private ObservableCollection<Reserver> _reserverList;
+		private Reserver _selectedReserver;
 
 		private bool _serviceIsRunning;
 
@@ -27,25 +27,234 @@ namespace PartsReserver.ViewModels
 		{
 			_cancellationTokenSource = new CancellationTokenSource();
 			
-			Reservers = new ObservableCollection<Reserver>(new[] { new Reserver() {  Name = "first" }, new Reserver() {  Name = "second" } });
+			Reservers = new BindingList<Reserver>(new[] { new Reserver{  Name = "first"}, new Reserver() {  Name = "second"} });
 			StartCommand = new RelayCommand(StartCommandExecute, CanStartCommandExecute);
 			StopCommand = new RelayCommand(StopCommandExecute, CanStopCommandExecute);
 			OpenSettingsCommand = new RelayCommand(OpenSettingsCommandExecute);
 			SaveReserversCommand = new RelayCommand(SaveReserversExecute);
 			LoadReserversCommand = new RelayCommand<string>(LoadReserversExecute);
-			LoadReserversExecute(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "Reservers.xml"));
-		}
-
-		public ObservableCollection<Reserver> Reservers
-		{
-			get => _reserverList;
-			set
+			AddReserverCommand = new RelayCommand(AddReserverCommandExecute);
+			RemoveReserverCommand = new RelayCommand(RemoveReserverCommandExecute);
+			TestFilterCommand = new RelayCommand(TestFilterCommandExecute);
+			LoadReserversExecute(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Reservers.xml"));
+			if (Reservers.Any())
 			{
-				_reserverList = value;
-				OnPropertyChanged(nameof(Reservers));
+				SelectedReserver = Reservers[0];
 			}
 		}
 
+		public BindingList<Reserver> Reservers { get; set; }
+
+		public Reserver SelectedReserver
+		{
+			get => _selectedReserver;
+			set
+			{
+				_selectedReserver = value;
+				OnPropertyChanged(nameof(EnableFilter));
+			}
+		}
+
+		public bool EnableFilter => SelectedReserver != null;
+
+		#region FilterFields
+
+		public bool Activity
+		{
+			get => SelectedReserver?.Activity ?? false;
+			set => SelectedReserver.Activity = value;
+		}
+
+		public string Name
+		{
+			get => SelectedReserver?.Name ?? string.Empty;
+			set
+			{
+				if (SelectedReserver != null)
+				{
+					SelectedReserver.Name = value;
+				}
+			}
+		}
+
+		public string CarMark
+		{
+			get => SelectedReserver?.CarMark ?? string.Empty;
+
+			set
+			{
+				if (SelectedReserver != null)
+				{
+					SelectedReserver.CarMark = value;
+				}
+			}
+		}
+
+		public string VinNumberOfCarMaker
+		{
+			get => SelectedReserver?.VinNumberOfCarMaker ?? string.Empty;
+			set
+			{
+				if (SelectedReserver != null)
+				{
+					SelectedReserver.VinNumberOfCarMaker = value;
+				}
+			}
+		}
+
+		public int ModelYear
+		{
+			get => SelectedReserver?.ModelYear ?? 0;
+			set
+			{
+				if (SelectedReserver != null)
+				{
+					SelectedReserver.ModelYear = value;
+				}
+			}
+		}
+
+		public Dictionary<string, string> Status => SelectedReserver?.Status;
+
+		public string SelectedStatus
+		{
+			get => SelectedReserver?.SelectedStatus ?? string.Empty;
+			set
+			{
+				if (SelectedReserver != null)
+				{
+					SelectedReserver.SelectedStatus = value;
+				}
+			}
+		}
+
+		public Dictionary<string, string> OrderType => SelectedReserver?.OrderType;
+
+		public string SelectedOrderType
+		{
+			get => SelectedReserver?.SelectedOrderType ?? string.Empty;
+			set
+			{
+				if (SelectedReserver != null)
+				{
+					SelectedReserver.SelectedOrderType = value;
+				}
+			}
+		}
+
+		public string ModelCode
+		{
+			get => SelectedReserver?.ModelCode ?? string.Empty;
+			set
+			{
+				if (SelectedReserver != null)
+				{
+					SelectedReserver.ModelCode = value;
+				}
+			}
+		}
+
+		public Dictionary<string, string> Stock => SelectedReserver?.Stock;
+
+		public string SelectedStock
+		{
+			get => SelectedReserver?.SelectedStock ?? string.Empty;
+			set
+			{
+				if (SelectedReserver != null)
+				{
+					SelectedReserver.SelectedStock = value;
+				}
+			}
+		}
+
+		public Dictionary<string, string> AssemblyType => SelectedReserver?.AssemblyType;
+
+		public string SelectedAssemblyType
+		{
+			get => SelectedReserver?.SelectedAssemblyType ?? string.Empty;
+			set
+			{
+				if (SelectedReserver != null)
+				{
+					SelectedReserver.SelectedAssemblyType = value;
+				}
+			}
+		}
+
+		public Dictionary<string, string> FundingStatus => SelectedReserver?.FundingStatus;
+
+		public string SelectedFundingStatus
+		{
+			get => SelectedReserver?.SelectedFundingStatus ?? string.Empty;
+			set
+			{
+				if (SelectedReserver != null)
+				{
+					SelectedReserver.SelectedFundingStatus = value;
+				}
+			}
+		}
+
+		public Dictionary<string, string> DealerReserve => SelectedReserver?.DealerReserve;
+
+		public string SelectedDealerReserve
+		{
+			get => SelectedReserver?.SelectedDealerReserve ?? string.Empty;
+			set
+			{
+				if (SelectedReserver != null)
+				{
+					SelectedReserver.SelectedDealerReserve = value;
+				}
+			}
+		}
+
+		public Dictionary<string, string> Funded => SelectedReserver?.Funded;
+
+		public string SelectedFunded
+		{
+			get => SelectedReserver?.SelectedFunded ?? string.Empty;
+			set
+			{
+				if (SelectedReserver != null)
+				{
+					SelectedReserver.SelectedFunded = value;
+				}
+			}
+		}
+
+		public Dictionary<string, string> VbrError => SelectedReserver?.VbrError;
+
+		public string SelectedVbrError
+		{
+			get => SelectedReserver?.SelectedVbrError ?? string.Empty;
+			set
+			{
+				if (SelectedReserver != null)
+				{
+					SelectedReserver.SelectedVbrError = value;
+				}
+			}
+		}
+
+		public Dictionary<string, string> AdditionalFeature => SelectedReserver?.AdditionalFeature;
+
+		public string SelectedAdditionalFeature
+		{
+			get => SelectedReserver?.SelectedAdditionalFeature ?? string.Empty;
+			set
+			{
+				if (SelectedReserver != null)
+				{
+					SelectedReserver.SelectedAdditionalFeature = value;
+				}
+			}
+		}
+
+		#endregion
+
+		#region Commands
 		public RelayCommand SaveReserversCommand { get; set; }
 
 		public RelayCommand<string> LoadReserversCommand { get; set; }
@@ -56,10 +265,16 @@ namespace PartsReserver.ViewModels
 
 		public RelayCommand StopCommand { get; set; }
 
+		public RelayCommand AddReserverCommand { get; set; }
+
+		public RelayCommand RemoveReserverCommand { get; set; }
+
+		public RelayCommand TestFilterCommand { get; set; }
+
 		private void SaveReserversExecute()
 		{
 			Logger.Debug("Сохранение задач");
-			var path = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "Reservers.xml");
+			var path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Reservers.xml");
 			try
 			{
 				var serializer = new XmlSerializer(typeof(List<Reserver>));
@@ -96,7 +311,7 @@ namespace PartsReserver.ViewModels
 								throw new Exception();
 							}
 
-							Reservers = new ObservableCollection<Reserver>(reservers);
+							Reservers = new BindingList<Reserver>(reservers);
 						}
 					}
 					catch (Exception ex)
@@ -134,7 +349,7 @@ namespace PartsReserver.ViewModels
 								throw new Exception();
 							}
 
-							Reservers = new ObservableCollection<Reserver>(reservers);
+							Reservers = new BindingList<Reserver>(reservers);
 						}
 					}
 				}
@@ -149,7 +364,6 @@ namespace PartsReserver.ViewModels
 		private void OpenSettingsCommandExecute()
 		{
 			var settingsWindow = new SettingsPage();
-			settingsWindow.DataContext = new SettingsViewModel();
 			settingsWindow.ShowDialog();
 		}
 
@@ -180,5 +394,48 @@ namespace PartsReserver.ViewModels
 		}
 
 		private bool CanStopCommandExecute() => ServiceIsRunning;
+
+		private void AddReserverCommandExecute()
+		{
+			Reservers.Add(new Reserver() { Name = "new reserver" });
+			SelectedReserver = Reservers.Last();
+		}
+
+		private void RemoveReserverCommandExecute()
+		{
+			Reservers.Remove(SelectedReserver);
+		}
+
+		private void TestFilterCommandExecute()
+		{
+			try
+			{
+				var settings = new Settings();
+				settings.Load();
+				using (var httpClient = new HttpClientWrapper(settings.ServerAddress))
+				{
+#if Release
+					if (httpClient.Logon(settings.Login, settings.Password, _cancellationTokenSource.Token).Result)
+					{
+						var result = httpClient.GetCarListAsync(SelectedReserver, _cancellationTokenSource.Token).Result;
+						var dt = Helper.ToDataTable(result);
+						var autoRequestWindow = new AutoRequestResultWindow(dt);
+						autoRequestWindow.ShowDialog();
+					}
+#else
+					var result = httpClient.GetCarListTest(SelectedReserver, _cancellationTokenSource.Token);
+					var dt = Helper.ToDataTable(result);
+					var autoRequestWindow = new AutoRequestResultWindow(dt);
+					autoRequestWindow.ShowDialog();
+#endif
+				}
+			}
+			catch (Exception e)
+			{
+				Logger.Write(e.Message);
+			}
+		}
+
+#endregion
 	}
 }

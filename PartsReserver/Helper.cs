@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Data;
 using System.IO;
+using System.Linq;
 using System.Xml.Serialization;
 
 namespace PartsReserver
@@ -35,6 +38,28 @@ namespace PartsReserver
 				}
 			}
 			return new T();
+		}
+
+		public static DataTable ToDataTable(List<Dictionary<string, string>> list)
+		{
+			DataTable result = new DataTable();
+			if (list.Count == 0)
+				return result;
+
+			var columnNames = list.SelectMany(dict => dict.Keys).Distinct();
+			result.Columns.AddRange(columnNames.Select(c => new DataColumn(c)).ToArray());
+			foreach (var item in list)
+			{
+				var row = result.NewRow();
+				foreach (var key in item.Keys)
+				{
+					row[key] = item[key];
+				}
+
+				result.Rows.Add(row);
+			}
+
+			return result;
 		}
 	}
 }
