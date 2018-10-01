@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -10,6 +11,7 @@ using System.Threading.Tasks;
 using System.Xml;
 using Newtonsoft.Json;
 using PartsReserver.Models;
+using static PartsReserver.LicHelper;
 
 namespace PartsReserver
 {
@@ -21,6 +23,8 @@ namespace PartsReserver
 		private readonly string _address;
 
 		private readonly CookieContainer _cookies = new CookieContainer();
+
+		private Stopwatch _licenseWatcher;
 
 		public HttpClientWrapper(string address)
 		{
@@ -78,11 +82,12 @@ namespace PartsReserver
 		public async Task<List<Dictionary<string, string>>> GetCarListAsync(Reserver filter, CancellationToken token)
 		{
 			Logger.Debug("HttpClient. /a/auto/auto.json");
+			var url = _address + "/a/auto/auto.json";
 			var start = 0;
 			var list = new List<Dictionary<string, string>>(100);
 			try
 			{
-				var url = _address + "/a/auto/auto.json";
+				ValidateLicense();
 				while (true)
 				{
 					var req = new HttpRequestMessage(HttpMethod.Post, url) {Content = new FormUrlEncodedContent(filter.ToListKeyValuePair(start))};
@@ -111,7 +116,17 @@ namespace PartsReserver
 		public async Task ReserveCarAsync(List<Dictionary<string, string>> list, CancellationToken token)
 		{
 			Logger.Debug("HttpClient. ReserveCarAsync");
+			
 			var url = _address + "/xml_savehistory.do";
+			try
+			{
+				ValidateLicense();
+			}
+			catch (Exception e)
+			{
+				Logger.Write("HttpClient. ReserveCarAsync. Ошибка проверки лицензии.", e);
+				return;
+			}
 			foreach (var car in list.Where(x => string.IsNullOrEmpty(x["10"])))
 			{
 				try
@@ -134,7 +149,8 @@ namespace PartsReserver
 					}
 					else
 					{
-						Logger.Write($"Reserve: carId = {car["orderid"]} orderId = {car["orderid"]}\n{response.Content.ReadAsStringAsync()}");
+						Logger.Write(
+							$"Reserve: carId = {car["orderid"]} orderId = {car["orderid"]}\n{response.Content.ReadAsStringAsync()}");
 					}
 				}
 				catch (Exception e)
@@ -146,6 +162,7 @@ namespace PartsReserver
 
 		public List<Dictionary<string, string>> GetCarListTest(Reserver filter, CancellationToken token)
 		{
+			ValidateLicense();
 			var path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "auto.json");
 			var content = File.ReadAllText(path);
 			var list = new List<Dictionary<string, string>>(100);
@@ -154,8 +171,6 @@ namespace PartsReserver
 			list.AddRange(parsedResponse);
 			return list;
 		}
-
-
 
 		public void Dispose()
 		{
@@ -228,6 +243,15 @@ namespace PartsReserver
 			}
 
 			return list;
+		}
+
+		private void ValidateLicense()
+		{
+			if (_licenseWatcher == null || _licenseWatcher.ElapsedMilliseconds - 1000 * 60 > 0)
+			{
+				_licenseWatcher = Stopwatch.StartNew();
+				LicHelper.ValidateLicense();
+			}
 		}
 	}
 }

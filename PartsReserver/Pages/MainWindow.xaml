@@ -125,6 +125,6 @@
             <TextBlock Grid.Column="0" Grid.Row="15">Доп признак</TextBlock>
             <ComboBox Grid.Column="1" Grid.Row="15" ItemsSource="{Binding AdditionalFeature}" SelectedValue="{Binding SelectedAdditionalFeature}" DisplayMemberPath="Key"  SelectedValuePath="Value"></ComboBox>
         </Grid>
-        <Button Grid.Column="1" Grid.Row="2" IsEnabled="{Binding EnableFilter}" Command="{Binding TestFilterCommand}">Тест фильтра</Button>
+        <Button Grid.Column="1" Grid.Row="2" IsEnabled="{Binding EnableFilter}" Command="{Binding TestFilterCommand}" ToolTip="Получить список авто согласно фильтру">Тест фильтра</Button>
     </Grid>
 </Window>
