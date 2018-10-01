@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Forms;
 using System.Xml.Serialization;
 using GalaSoft.MvvmLight.CommandWpf;
@@ -414,7 +415,13 @@ namespace PartsReserver.ViewModels
 				settings.Load();
 				using (var httpClient = new HttpClientWrapper(settings.ServerAddress))
 				{
-#if Release
+#if DEBUG
+					var result = httpClient.GetCarListTest(SelectedReserver, _cancellationTokenSource.Token);
+					var dt = Helper.ToDataTable(result);
+					var autoRequestWindow = new AutoRequestResultWindow(dt);
+					autoRequestWindow.ShowDialog();
+
+#else
 					if (httpClient.Logon(settings.Login, settings.Password, _cancellationTokenSource.Token).Result)
 					{
 						var result = httpClient.GetCarListAsync(SelectedReserver, _cancellationTokenSource.Token).Result;
@@ -422,11 +429,6 @@ namespace PartsReserver.ViewModels
 						var autoRequestWindow = new AutoRequestResultWindow(dt);
 						autoRequestWindow.ShowDialog();
 					}
-#else
-					var result = httpClient.GetCarListTest(SelectedReserver, _cancellationTokenSource.Token);
-					var dt = Helper.ToDataTable(result);
-					var autoRequestWindow = new AutoRequestResultWindow(dt);
-					autoRequestWindow.ShowDialog();
 #endif
 				}
 			}

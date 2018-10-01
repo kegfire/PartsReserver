@@ -50,7 +50,7 @@ namespace PartsReserver
 			
 			try
 			{
-				if (await GetCookies(token))
+				if (GetCookies(token))
 				{
 					Logger.Debug("HttpClient. Login");
 					var nvc = new List<KeyValuePair<string, string>>
@@ -182,12 +182,30 @@ namespace PartsReserver
 		/// </summary>
 		/// <param name="token"> Токен отмены.</param>
 		/// <returns> Резкультат выполнения запроса.</returns>
-		private async Task<bool> GetCookies(CancellationToken token)
+		private bool GetCookies(CancellationToken token)
 		{
 			Logger.Debug("HttpClient. GetCookies");
-			var url = _address + "/";
-			var response = await _client.GetAsync(url, token);
-			return response.IsSuccessStatusCode;
+			var result = false;
+			try
+			{
+				var url = _address + "/";
+				var cts = new CancellationTokenSource();
+				var newTask = Task.Factory.StartNew(state =>
+				{
+					var response = _client.GetAsync(url, token).Result;
+					result = response.IsSuccessStatusCode;
+				}, cts.Token, cts.Token);
+				if (!newTask.Wait(7000, cts.Token))
+				{
+					cts.Cancel();
+				}
+				return result;
+			}
+			catch (Exception e)
+			{
+				Logger.Write("HttpClient. GetCookies.", e);
+				throw;
+			}
 		}
 
 		/// <summary>

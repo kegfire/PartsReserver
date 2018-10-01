@@ -28,17 +28,17 @@ namespace PartsReserver
 					var reservers = Helper.Deserialize<List<Reserver>>(path);
 					using (var client = new HttpClientWrapper(settings.ServerAddress))
 					{
-						//var successLogon = client.Logon(settings.Login, settings.Password, cancellationToken).Result;
-						//Logger.Debug($"Login = {successLogon}");
-						//if (successLogon)
-						//{
+						var successLogon = client.Logon(settings.Login, settings.Password, cancellationToken).Result;
+						Logger.Debug($"Login = {successLogon}");
+						if (successLogon)
+						{
 							foreach (var reserver in reservers.Where(x => x.Activity))
 							{
 								Logger.Debug($"Reserver {reserver.Name}.");
 								var carList = client.GetCarListAsync(reserver, cancellationToken).Result;
 								await client.ReserveCarAsync(carList, cancellationToken);
 							}
-						//}
+						}
 					}
 				}
 			
